@@ -4,76 +4,77 @@
   <meta charset="utf-8">
   <title>TodoList</title>
   <style>
-    body {
-      font-family: Helvetica, Arial, sans-serif;
-      font-size: 18px;
-    }
+  body {
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 18px;
+  }
 
-    .container {
-      margin: 20px auto;
-      width: 500px;
-      border: 1px solid #e6e6e6;
-      border-radius: 3px;
-    }
+  .container {
+    margin: 20px auto;
+    width: 500px;
+    border: 1px solid #e6e6e6;
+    border-radius: 3px;
+  }
 
-    h1 {
-      text-align: center;
-    }
+  h1 {
+    text-align: center;
+  }
 
-    form {
-      padding: 0 0 20px;
-    }
+  form {
+    padding: 0 0 20px;
+  }
 
-    input#new-todo {
-      display: block;
-      width: 478px;
-      border-radius: 3px;
-      border: 1px solid #e6e6e6;
-      padding: 10px;
-      font-size: 18px;
-    }
+  input#new-todo {
+    display: block;
+    width: 478px;
+    border-radius: 3px;
+    border: 1px solid #e6e6e6;
+    padding: 10px;
+    font-size: 18px;
+  }
 
-    ul#todolist {
-      list-style: none;
-      margin: 0;
-      padding: 0;
-    }
+  ul#todolist {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
 
-    ul#todolist li {
-      padding: 5px;
-      border: 1px solid #e6e6e6;
-      border-radius: 3px;
-    }
+  ul#todolist li {
+    padding: 5px;
+    border: 1px solid #e6e6e6;
+    border-radius: 3px;
+  }
 
-    ul#todolist li:hover {
-      background-color: #e6e6e6;
-    }
+  ul#todolist li:hover {
+    background-color: #e6e6e6;
+  }
 
-    ul#todolist .todo.completed label {
-      text-decoration: line-through;
-      color: #999;
-    }
+  ul#todolist .todo.completed label {
+    text-decoration: line-through;
+    color: #999;
+  }
 
-    .footer {
-      margin-top: 10px;
-      background: #323232;
-      color: #e6e6e6;
-      padding: 5px;
-      border-bottom-left-radius: 3px;
-      border-bottom-right-radius: 3px;
-    }
+  .footer {
+    margin-top: 10px;
+    background: #323232;
+    color: #e6e6e6;
+    padding: 5px;
+    border-bottom-left-radius: 3px;
+    border-bottom-right-radius: 3px;
+  }
 
-    .footer a:link,
-    .footer a:hover,
-    .footer a:visited {
-      color: #e6e6e6;
-      text-decoration: none;
-    }
+  .footer a:link,
+  .footer a:hover,
+  .footer a:visited {
+    color: #e6e6e6;
+    text-decoration: none;
+  }
 
-    .footer a:hover {
-      text-decoration: underline;
-    }
+  .footer a:hover {
+    text-decoration: underline;
+  }
   </style>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 </head>
 <body>
   <div class="container">
@@ -97,11 +98,84 @@
       Todo: <span id="todo-count">1</span> •
       Done: <span id="completed-count">0</span> •
       Total: <span id="total-count">1</span>
+
+      <a href="#" id="clean-up">Clean up</a>
     </div>
   </div>
 
   <script>
-  	// JavaScript here...
+  function toggleDone() {
+    let checkbox = this;
+    $(checkbox).parent().toggleClass("completed");
+  }
+
+  function updateCounters() {
+    let todoCount = $(".todo").length;
+    let completedCount = $(".completed").length;
+
+    $("#total-count").html(todoCount);
+    $("#completed-count").html(completedCount);
+    $("#todo-count").html(todoCount - completedCount);
+  }
+
+  updateCounters();
+
+  function submitTodo(event) {
+    event.preventDefault();
+
+    let title = $("#new-todo").val();
+
+    createTodo(title);
+
+    $("#new-todo").val(null);
+    updateCounters();
+  }
+
+  function createTodo(title) {
+    let checkboxId = "todo-" + nextTodoId();
+
+    let listItem = $("<li></li>");
+    listItem.addClass("todo");
+
+    let checkbox = $('<input>');
+    checkbox.attr('type', 'checkbox');
+    checkbox.attr('id', checkboxId);
+    checkbox.bind('change', toggleDone);
+
+    let space = document.createTextNode(" ");
+
+    let label = $('<label></label>');
+    label.attr('for', checkboxId);
+    label.html(title);
+
+    listItem.append(checkbox);
+    listItem.append(space);
+    listItem.append(label);
+
+    $("#todolist").append( listItem );
+
+    updateCounters();
+  }
+
+  function nextTodoId() {
+    return $(".todo").length + 1;
+  }
+  function cleanUpDoneTodos(event) {
+    event.preventDefault();
+    $.when($(".completed").remove())
+      .then(updateCounters);
+  }
+
+
+
+  $(document).ready(function() {
+    $("input[type=checkbox]").bind('change', toggleDone);
+    $("form").bind('submit', submitTodo);
+    updateCounters();
+    $("#clean-up").bind('click', cleanUpDoneTodos);
+  });
+
+  $("#total-count").html($(".todo").length);
   </script>
 </body>
 </html>
